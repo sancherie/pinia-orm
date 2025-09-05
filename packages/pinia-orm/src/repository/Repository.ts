@@ -1,4 +1,4 @@
-import type { Pinia } from 'pinia'
+import { getActivePinia, Pinia } from 'pinia'
 import type { Constructor } from '../types'
 import { assert, isArray } from '../support/Utils'
 import type { Collection, Element, Item } from '../data/Data'
@@ -20,10 +20,10 @@ import { useRepo } from '../composables/useRepo'
 import type { DataStoreState } from '../composables/useDataStore'
 import { useDataStore } from '../composables/useDataStore'
 import { cache } from '../cache/SharedWeakCache'
-import { cache as hydratedDataCache } from '../cache/SharedHydratedDatakCache'
 import type { WeakCache } from '../cache/WeakCache'
 import { config as globalConfig } from '../store/Config'
 import type { FilledInstallOptions } from '../store/Store'
+import { getHydratedCache } from '../cache/SharedHydratedDatakCache'
 
 export interface Repository<M extends Model = Model> {
   /**
@@ -114,7 +114,7 @@ export class Repository<M extends Model = Model> {
     this.config = globalConfig
     this.database = database
     this.pinia = pinia
-    this.hydratedDataCache = hydratedDataCache as Map<string, M>
+    this.hydratedDataCache = getHydratedCache(pinia || getActivePinia()!) as Map<string, M>
     return new Proxy(this, {
       get (repository, field) {
         if (typeof field === 'symbol') { return }
